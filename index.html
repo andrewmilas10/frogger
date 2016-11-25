@@ -46,8 +46,8 @@
         }
 
         var goingToIndex = Math.trunc(Math.random()*3);
-        var flySpots = [[-60, 100], [660, 300], [200, 610],
-                        [300, 500], [460, 200], [100, 300]];
+        var flySpots = [[-60, 100], [810, 300], [200, 610],
+            [300, 500], [460, 200], [100, 300], [100, 200], [400, 150], [500, 450], [650, 200], [700, 370]];
         var fly = createRotatingImage("resources/fly.png", flySpots[goingToIndex][0], flySpots[goingToIndex][1], 50, 50, 0, 0, 0);
         var flyTime = [26][Math.trunc(Math.random())];
 //        var flyTime = [-1, -1, -1, -1, 14, 15, 18, 23, 24, 26, 27][Math.trunc(Math.random()*11)];
@@ -104,7 +104,7 @@
                 drawFly();
             }
 
-            if (ladyFrog.onALog !== false) {
+            if (ladyFrog.onALog !== false && ladyFrog.onALog !== 'no more') {
                 drawLadyFrog();
             }
 
@@ -125,6 +125,32 @@
 
         function drawLadyFrog() {
             ladyFrog.drawImage();
+
+            if ((ladyFrog.left>=1000 && ladyFrog.changeX>0) || (ladyFrog.left + ladyFrog.width <= 0 && ladyFrog.changeX < 0)) {
+                ladyFrog.onALog = 'no more';
+
+            }
+            if (frog.checkCollision(ladyFrog)) {
+                frog.src = "resources/doubleFrog.png";
+                ladyFrog.onALog = 'no more';
+            }
+            if (Math.trunc(Math.random()*200)===0) {
+                ladyFrog.left -= 30;
+                ladyFrog.currentDeg=270;
+                if (!ladyFrog.checkCollision(steps[ladyFrog.onALog])) {
+                    ladyFrog.left += 30
+                }
+            }
+
+            if (Math.trunc(Math.random()*200)===0) {
+                ladyFrog.left += 30;
+                ladyFrog.currentDeg=90;
+                if (!ladyFrog.checkCollision(steps[ladyFrog.onALog])) {
+                    ladyFrog.left -= 30
+                }
+            }
+
+
         }
 
         var toBeCleared = [];
@@ -168,7 +194,8 @@
         function drawSteps() {
             safe = (frog.top > 200);
             for (var i=0; i<steps.length; i++) {
-                if (logIndices.indexOf(i) >= 0 && Math.trunc(Math.random()*10000)===0 && ladyFrog.onALog===false) {
+                if (logIndices.indexOf(i) >= 0 && ladyFrog.onALog===false && Math.trunc(Math.random()*5)===0 &&
+                    ((steps[i].left>=1000 && steps[i].changeX>0) || (steps[i].left + steps[i].width <= 0 && steps[i].changeX < 0))) {
                     ladyFrog.left = steps[i].left;
                     ladyFrog.top = steps[i].top+5;
                     ladyFrog.onALog = i;
@@ -196,6 +223,10 @@
                 lilyPads[i].drawImage();
                 if (frog.checkCollision(lilyPads[i])) {
                     lilyPads[i].isOccupied=true;
+                    if (frog.src.indexOf("resources/doubleFrog.png") >= 0) {
+                        lives+=1;
+                        frog.src = "resources/frog.png"
+                    }
                     safe=true;
                     newRound();
                     if (timeLeft>23) {
@@ -246,6 +277,7 @@
                 clearTimeout(toBeCleared[i]); // will do nothing if no timeout with id is present
             }
             ladyFrog.onALog = false;
+            ladyFrog.currentDeg=0;
 
         }
 
@@ -303,12 +335,6 @@
             ctx.fillStyle='#'+color;
             ctx.fillRect(startX, startY, width, height);
         }
-
-//        function drawFinish() {
-//            var ctx=document.getElementById('myCanvas').getContext("2d");
-//            ctx.fillStyle='#FF0000';
-//            ctx.fillRect(0, 75, window.innerWidth, 10);
-//        }
         
         function createImage(src, xcoord, ycoord, width, height) {
             var img = new Image();
