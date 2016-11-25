@@ -4,6 +4,8 @@ var lives = 3;
 var seconds;
 var score = 0;
 var highScore = getCookie('high score');
+var round = 0;
+var highRound = getCookie('high round');
 var timeLeft = 30;
 var disableFrog = false;
 
@@ -22,21 +24,31 @@ snake.checkBoundaries = function () {
     }
 };
 
-var cars = createMovingImageArray(
-    [{ src: "resources/car1.png", width: 80, y: 450, speed: -1.5, xValues: [750, 1000, 1250] },
-    { src: "resources/car2.png", width: 82, y: 400, speed: 2.5, xValues: [-200, -650] },
-    { src: "resources/car3.png", width: 81.5, y: 350, speed: 2, xValues: [-150, -400, -700] },
-    { src: "resources/car4.png", width: 85, y: 300, speed: -3, xValues: [950, 1250] }]);
 
-var steps = createMovingImageArray(
-    [{ src: "resources/log1.png", width: 140, y: 200, speed: 1.5, xValues: [550, 150, -150] },
-    { src: "resources/turtle.png", width: 180, y: 150, speed: -1.65, xValues: [400, 750] },
-    { src: "resources/log1.png", width: 140, y: 100, speed: 1.55, xValues: [-150, -400, -700] },
-    { src: "resources/log2.1.png", width: 160, y: 50, speed: -1.9, xValues: [200, 550] }]);
+var roundInfo = [{carSpeeds: [-1.5, 2.5, 2, -3], carXValues: [[750, 1000, 1250], [-200, -650], [-150, -400, -700], [950, 1250]],   //round 1 Info
+                  stepSpeeds: [1.5, -1.65, 1.55, -1.9], stepXValues: [[550, 150, -150], [400, 750], [-150, -400, -700], [950, 1250]], 
+                  divingTurtlesIndices: [3], crocIndices: [9]}, 
+                  
+                  {carSpeeds: [-1.5, 5, 2, -3], carXValues: [[750, 1000, 1250], [-200], [-150, -400, -700], [950, 1250]],  //round 2 Info
+                  stepSpeeds: [1.5, -1.65, 1.55, -1.9], stepXValues: [[550, 150, -150], [400, 750], [-150, -400, -700], [950, 1250]], 
+                  divingTurtlesIndices: [3], crocIndices: [8, 9]}]
+
+// var cars = createMovingImageArray(
+//     [{ src: "resources/car1.png", width: 80, y: 450, speed: -1.5, xValues: [750, 1000, 1250] },
+//     { src: "resources/car2.png", width: 82, y: 400, speed: 2.5, xValues: [-200, -650] },
+//     { src: "resources/car3.png", width: 81.5, y: 350, speed: 2, xValues: [-150, -400, -700] },
+//     { src: "resources/car4.png", width: 85, y: 300, speed: -3, xValues: [950, 1250] }]);
+var cars;
+
+// var steps = createMovingImageArray(
+//     [{ src: "resources/log1.png", width: 140, y: 200, speed: 1.5, xValues: [550, 150, -150] },
+//     { src: "resources/turtle.png", width: 180, y: 150, speed: -1.65, xValues: [400, 750] },
+//     { src: "resources/log1.png", width: 140, y: 100, speed: 1.55, xValues: [-150, -400, -700] },
+//     { src: "resources/log2.1.png", width: 160, y: 50, speed: -1.9, xValues: [200, 550] }]);
+var steps;
 
 var splash = createImage("resources/splashing.png", 0, 0, 180, 77.4);
-steps[9].src = "resources/croc.png";
-steps[9].width = 160;
+// steps[9].src = "resources/croc.png";
 
 var lilyPads = [];
 for (i = 0; i < 5; i++) {
@@ -54,12 +66,13 @@ var shouldDrawFly = true;
 
 var ladyFrog = createRotatingImage("resources/ladyFrog.png", 400, 300, 40, 40, 0, 0, 0);
 ladyFrog.onALog = false;
-var logIndices = [];
-for (var i = 0; i < steps.length; i++) {
-    if (steps[i].src.indexOf("/resources/log1.png") >= 0 || steps[i].src.indexOf("/resources/log2.1.png") >= 0) {
-        logIndices.push(i);
-    }
-}
+var logIndices;
+// var logIndices = [];
+// for (var i = 0; i < steps.length; i++) {
+//     if (steps[i].src.indexOf("/resources/log1.png") >= 0 || steps[i].src.indexOf("/resources/log2.1.png") >= 0) {
+//         logIndices.push(i);
+//     }
+// }
 
 function createMovingImageArray(values) {
     var array = [];
@@ -71,9 +84,37 @@ function createMovingImageArray(values) {
     return array;
 }
 
+function turnRoundInfoIntoVariables(round){
+    cars = createMovingImageArray(
+        [{ src: "resources/car1.png", width: 80, y: 450, speed: roundInfo[round].carSpeeds[0], xValues: roundInfo[round].carXValues[0]},
+        { src: "resources/car2.png", width: 82, y: 400, speed: roundInfo[round].carSpeeds[1], xValues: roundInfo[round].carXValues[1]},
+        { src: "resources/car3.png", width: 81.5, y: 350, speed: roundInfo[round].carSpeeds[2], xValues: roundInfo[round].carXValues[2]},
+        { src: "resources/car4.png", width: 85, y: 300, speed: roundInfo[round].carSpeeds[3], xValues: roundInfo[round].carXValues[3]}]);
+
+    steps = createMovingImageArray(
+        [{ src: "resources/log1.png", width: 140, y: 200, speed: roundInfo[round].stepSpeeds[0], xValues: roundInfo[round].stepXValues[0]},
+        { src: "resources/turtle.png", width: 180, y: 150, speed: roundInfo[round].stepSpeeds[1], xValues: roundInfo[round].stepXValues[1]},
+        { src: "resources/log1.png", width: 140, y: 100, speed: roundInfo[round].stepSpeeds[2], xValues: roundInfo[round].stepXValues[2]},
+        { src: "resources/log2.1.png", width: 160, y: 50, speed: roundInfo[round].stepSpeeds[3], xValues: roundInfo[round].stepXValues[3]}]);
+
+    alert(steps);
+
+    for (var i = 0; i < roundInfo[round].crocIndices.length; i++) {
+        steps[i].src="resources/croc.png";
+    }
+
+    logIndices = [];
+    for (var i = 0; i < steps.length; i++) {
+    if (steps[i].src.indexOf("/resources/log1.png") >= 0 || steps[i].src.indexOf("/resources/log2.1.png") >= 0) {
+        logIndices.push(i);
+    }
+}
+}
+
 //starts the animation when the program is run
 function initialize() {
     seconds = (new Date() + '').substr(22, 2);
+    startRound(round);
     animate();
 }
 
@@ -99,12 +140,12 @@ function animate() {
         }
     }
 
-    if (shouldDrawFly) {
-        drawFly();
-    }
-
     if (ladyFrog.onALog !== false && ladyFrog.onALog !== 'no more') {
         drawLadyFrog();
+    }
+
+    if (shouldDrawFly) {
+        drawFly();
     }
 
     drawText('Score: ' + score, 15, 590);
@@ -112,7 +153,7 @@ function animate() {
         highScore = score;
         document.cookie = "high score=" + highScore + "; expires=Thu, 18 Dec 2017 12:00:00 UTC";
     }
-    drawText('High Score: ' + highScore, 650, 590);
+    drawText('High Score: ' + highScore, 140, 590);
 
     if (!safe) {
         death();
@@ -131,7 +172,7 @@ function death() {
     skull.left = frog.left;        
     skull.top = frog.top;
     skull.shouldDraw = true; 
-    newRound();
+    newTime();
 }
 
 function drawLadyFrog() {
@@ -211,12 +252,12 @@ function drawSteps() {
             ladyFrog.onALog = i;
             ladyFrog.changeX = steps[i].changeX;
         }
-        if (i === 3 && timeLeft % 5 > 2) {
+        if (roundInfo[round].divingTurtlesIndices.indexOf(i)>=0 && timeLeft % 5 > 2) {
             steps[i].updateCoords();
         }
         else {
             steps[i].drawImage();
-            if (i === 3 && timeLeft % 5 === 0) {
+            if (roundInfo[round].divingTurtlesIndices.indexOf(i)>=0 && timeLeft % 5 === 0) {
                 splash.left = steps[i].left + 2;
                 flickerCounter+=1;
                 splash.top = steps[i].top - 11.5;
@@ -226,8 +267,8 @@ function drawSteps() {
             }
         }
         if ( frog.checkCollision(steps[i]) &&       
-            (i !== 3 || timeLeft % 5 < 3) &&   //safe if on a turtle and is not hidden 
-            (!(i === 9 && frog.left < steps[i].left + 26))) {       //safe if not on croc's mouth
+            (roundInfo[round].divingTurtlesIndices.indexOf(i)<0 || timeLeft % 5 < 3) &&   //safe if on a turtle and is not hidden 
+            (!(roundInfo[round].crocIndices.indexOf(i)>=0 && frog.left < steps[i].left + 26))) {       //safe if not on croc's mouth
             safe = true;
 
             //move frog along with the step if it's on the screen
@@ -261,7 +302,7 @@ function drawLilyPads() {
             else {
                 score += 10;
             }
-            newRound();
+            newTime();
         }
         if (lilyPads[i].isOccupied) {
             frogOnLilyPads.left = 137.5 * i + 100;
@@ -289,7 +330,14 @@ function startFrog(){
     
 }
 
-function newRound() {
+function startRound(){
+    turnRoundInfoIntoVariables(round);
+    alert(cars);
+
+    newTime();
+}
+
+function newTime() {
     frog.src = "resources/frog.png";
     frog.currentDeg = 0;
     frog.left = 375;
@@ -301,7 +349,7 @@ function newRound() {
     snakeTime = Math.trunc(Math.random() * 5 + 20);
     snake.left = -200;
     // flyTime = [24][Math.trunc(Math.random())];
-    flyTime = [-1, -1, -1, -1, 14, 15, 18, 23, 24, 25, 26, 26, 27][Math.trunc(Math.random()*11)];
+    flyTime = [-1, -1, 18, 23, 24, 25, 26, 26, 27][Math.trunc(Math.random()*11)];
     goingToIndex = Math.trunc(Math.random() * 3);
     fly = createRotatingImage("resources/fly.png", flySpots[goingToIndex][0], flySpots[goingToIndex][1], 50, 50, 0, 0, 0);
     shouldDrawFly = true;
@@ -321,7 +369,7 @@ function checkGameWon() {
         }
     }
     if (allLilies) {
-        drawRect('00ff77', 0, 500, 650, 50);
+        // drawRect('118a33', 0, 500, 650, 50);
         stopAnimation();
         drawText("You Win", 200, 250)
     }
@@ -329,7 +377,7 @@ function checkGameWon() {
 
 function checkGameLost() {
     if (lives === 0) {
-        drawRect('00ff77', 75, 550, 20, 20);
+        // drawRect('118a33', 75, 550, 20, 20);
         stopAnimation();
         drawText("Game Over", 200, 250)
     }
@@ -345,6 +393,13 @@ function drawBackground() {
         frogLives.drawImage();
     }
     updateTime();
+
+    drawText('Round: ' + round, 500, 590);
+    if (round > highRound) {
+        highRound = round;
+        document.cookie = "high round=" + highRound + "; expires=Thu, 18 Dec 2017 12:00:00 UTC";
+    }
+    drawText('Highest Round: ' + highRound, 620, 590);
 }
 
 function updateTime() {
@@ -355,7 +410,7 @@ function updateTime() {
     else {
         timeLeft = -30 - parseInt(seconds2) + parseInt(seconds);
     }
-    drawText('Time: ' + timeLeft, 650, 565);
+    drawText('Time: ' + timeLeft, 690, 565);
     if (timeLeft === 0) {
         death();
     }
