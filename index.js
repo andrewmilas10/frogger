@@ -209,9 +209,13 @@ function drawSteps() {
                 splash.drawImage();
             }
         }
-        if (frog.checkCollision(steps[i]) && (i !== 3 || timeLeft % 5 === 0 || timeLeft % 5 === 1 || timeLeft % 5 === 2) && (!(i === 9 && frog.left < steps[i].left + 26))) {
+        if ( frog.checkCollision(steps[i]) &&       
+            (i !== 3 || timeLeft % 5 === 0 || timeLeft % 5 === 1 || timeLeft % 5 === 2) &&   //safe if on a turtle and is not hidden 
+            (!(i === 9 && frog.left < steps[i].left + 26))) {       //safe if not on croc's mouth
             safe = true;
-            if (frog.left + steps[i].changeX > 0 && frog.left + frog.width + steps[i].changeX < 800) {
+
+            //move frog along with the step if it's on the screen
+            if (frog.left + steps[i].changeX > 0 && frog.left + frog.width + steps[i].changeX < 800) {   
                 frog.left += steps[i].changeX;
             }
         }
