@@ -5,8 +5,11 @@ var seconds;
 var score = 0;
 var highScore = getCookie('high score');
 var timeLeft = 30;
+var disableFrog = false;
 
 var skull = createImage("resources/skull.png", 0, 0, 50, 50);
+skull.shouldDraw = false;
+
 var frog = createRotatingImage("resources/frog.png", 375, 500, 50, 50, 0, 0, 0);
 var frogOnLilyPads = createRotatingImage("resources/frog.png", 0, 0, 50, 50, 180, 0, 0);
 var frogLives = createImage("resources/frogLife.png", 75, 550, 20, 20);
@@ -112,14 +115,23 @@ function animate() {
     drawText('High Score: ' + highScore, 650, 590);
 
     if (!safe) {
-        lives -= 1;
-        skull.left = frog.left;
-        skull.top = frog.top;
-        skull.drawImage();
-        newRound();
+        death();
     }
+
+    if (skull.shouldDraw) {
+        skull.drawImage();
+    }
+
     checkGameLost();
     checkGameWon();
+}
+
+function death() {
+    lives -= 1;
+    skull.left = frog.left;        
+    skull.top = frog.top;
+    skull.shouldDraw = true; 
+    newRound();
 }
 
 function drawLadyFrog() {
@@ -188,6 +200,7 @@ function setFlyData() {
     fly.changeY = fly.yDist * 2 / Math.sqrt(Math.pow(fly.xDist, 2) + Math.pow(fly.yDist, 2));
 }
 
+var flickerCounter = 0;
 function drawSteps() {
     safe = (frog.top > 200);
     for (var i = 0; i < steps.length; i++) {
@@ -205,12 +218,15 @@ function drawSteps() {
             steps[i].drawImage();
             if (i === 3 && timeLeft % 5 === 0) {
                 splash.left = steps[i].left + 2;
+                flickerCounter+=1;
                 splash.top = steps[i].top - 11.5;
-                splash.drawImage();
+                if (flickerCounter%16<8) {
+                    splash.drawImage();
+                }
             }
         }
         if ( frog.checkCollision(steps[i]) &&       
-            (i !== 3 || timeLeft % 5 === 0 || timeLeft % 5 === 1 || timeLeft % 5 === 2) &&   //safe if on a turtle and is not hidden 
+            (i !== 3 || timeLeft % 5 < 3) &&   //safe if on a turtle and is not hidden 
             (!(i === 9 && frog.left < steps[i].left + 26))) {       //safe if not on croc's mouth
             safe = true;
 
@@ -265,17 +281,27 @@ function drawCars() {
     }
 }
 
+function startFrog(){
+    disableFrog=false;
+    frog.changeY = 0;
+    frog.top = 500;
+    skull.shouldDraw = false;
+    
+}
+
 function newRound() {
     frog.src = "resources/frog.png";
     frog.currentDeg = 0;
     frog.left = 375;
-    frog.top = 500;
+    frog.top = 550;
+    disableFrog = true;
+    frog.changeY=-1.5;
     seconds = (new Date() + '').substr(22, 2);
     timeLeft = 30;
     snakeTime = Math.trunc(Math.random() * 5 + 20);
     snake.left = -200;
-    flyTime = [24][Math.trunc(Math.random())];
-    //            flyTime = [-1, -1, -1, -1, 14, 15, 18, 23, 24, 26, 27][Math.trunc(Math.random()*11)];
+    // flyTime = [24][Math.trunc(Math.random())];
+    flyTime = [-1, -1, -1, -1, 14, 15, 18, 23, 24, 25, 26, 26, 27][Math.trunc(Math.random()*11)];
     goingToIndex = Math.trunc(Math.random() * 3);
     fly = createRotatingImage("resources/fly.png", flySpots[goingToIndex][0], flySpots[goingToIndex][1], 50, 50, 0, 0, 0);
     shouldDrawFly = true;
@@ -284,7 +310,7 @@ function newRound() {
     }
     ladyFrog.onALog = false;
     ladyFrog.currentDeg = 0;
-
+    setTimeout(startFrog, 500);
 }
 
 function checkGameWon() {
@@ -367,22 +393,22 @@ function createImage(src, xcoord, ycoord, width, height) {
 $(document).keydown(function (event) {  //jQuery code to recognize a keydown event
     var keycode = (event.keyCode ? event.keyCode : event.which);
 
-    if (keycode == 87 && frog.top >= 50) {
+    if (keycode == 87 && frog.top >= 50 && !disableFrog) {
         frog.top -= 50;
         frog.currentDeg = 0;
     }
 
-    if (keycode == 65 && frog.left >= 50) {
+    if (keycode == 65 && frog.left >= 50 && !disableFrog) {
         frog.left -= 50;
         frog.currentDeg = 270;
     }
 
-    if (keycode == 68 && frog.left + frog.width <= 750) {
+    if (keycode == 68 && frog.left + frog.width <= 750 && !disableFrog) {
         frog.left += 50;
         frog.currentDeg = 90;
     }
 
-    if (keycode == 83 && frog.top + frog.height <= 500) {
+    if (keycode == 83 && frog.top + frog.height <= 500 && !disableFrog) {
         frog.top += 50;
         frog.currentDeg = 180;
     }
