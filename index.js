@@ -249,7 +249,6 @@ function drawLilyPads() {
                 lives += 1;
             }
             safe = true;
-            newRound();
             if (timeLeft > 23) {
                 score += 14;
             }
@@ -262,6 +261,7 @@ function drawLilyPads() {
             else {
                 score += 10;
             }
+            newRound();
         }
         if (lilyPads[i].isOccupied) {
             frogOnLilyPads.left = 137.5 * i + 100;
@@ -336,7 +336,7 @@ function checkGameLost() {
 }
 
 function drawBackground() {
-    drawRect('00ff77', 0, 250, 800, 600);
+    drawRect('118a33', 0, 250, 800, 600);
     drawRect('0088FF', 0, 0, 800, 250);
     drawRect('444444', 0, 300, 800, 200);
     drawText('Lives: ', 15, 565);
@@ -357,8 +357,7 @@ function updateTime() {
     }
     drawText('Time: ' + timeLeft, 650, 565);
     if (timeLeft === 0) {
-        lives -= 1;
-        newRound();
+        death();
     }
 }
 
