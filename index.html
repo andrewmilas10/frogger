@@ -13,4 +13,20 @@
     </canvas>
     <!--<button type="button" onclick="startAnimation()">start animation</button>-->
     <!--<button type="button" onclick="stopAnimation()">stop animation</button>-->
+
+<script>
+    function getMousePos(evt) {
+    var canvas = document.getElementById('myCanvas');
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: Math.round((evt.clientX-rect.left)/(rect.right-rect.left)*canvas.width),
+        y: Math.round((evt.clientY-rect.top)/(rect.bottom-rect.top)*canvas.height)
+    };}
+
+    document.getElementById('myCanvas').addEventListener('mousemove', function(evt) {
+        mousePos = getMousePos(evt);
+    }, false);
+
+    var mousePos = {x: 0, y:0};
+</script>
 </body>

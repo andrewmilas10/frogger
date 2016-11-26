@@ -13,11 +13,22 @@ var disableFrog = false;
 var roundBackground = createImage("resources/greenScreen.jpg", 0, 0, 800, 600);
 roundBackground.shouldDraw = false;
 
+var shouldDrawTitle = true;
+var titleWords = createImage("resources/title.PNG", 215, 100, 370, 80);
+var play = createButton(createImage("resources/play2.PNG", 337, 235, 125, 65), "resources/play.png", startRound);
 
-var skull = createImage("resources/skull.png", 0, 0, 50, 50);
+var shouldDrawGameOver = false;
+var gameOver = createButton(createImage("resources/gameOver2.png", 337, 300, 125, 65), "resources/gameOver.png", startRound);
+
+var titleCroc = createRotatingImage("resources/croc.png", 100, 350, 160, 50, 150, 0, 0);
+var titleTurtle = createRotatingImage("resources/turtle.png", 530, 350, 180, 50, 30, 0, 0);
+var titleBottom = [createImage("resources/log1.png", 100, 500, 140, 50), createImage("resources/car1.png", 320, 500, 80, 50), 
+                createImage("resources/lilypad.png", 480, 500, 50, 50), createImage("resources/car4.png", 610, 500, 85, 50)]
+
+var skull = createImage("resources/skull.png", 375, 350, 50, 50);
 skull.shouldDraw = false;
 
-var frog = createRotatingImage("resources/frog.png", 375, 500, 50, 50, 0, 0, 0);
+var frog = createRotatingImage("resources/frog.png", 375, 430, 50, 50, 0, 0, 0);
 var frogOnLilyPads = createRotatingImage("resources/frog.png", 0, 0, 50, 50, 180, 0, 0);
 var frogLives = createImage("resources/frogLife.png", 75, 550, 20, 20);
 
@@ -50,27 +61,15 @@ var roundInfo = [{carSpeeds: [-1.6, 2, 1.8, -2.5], carXValues: [[750, 1250], [-2
                   stepSpeeds: [2.3, -3, 1.3, -2.5], stepXValues: [[750, 150], [400, 750], [-150, -400], [950, 1250]], 
                   divingTurtlesIndices: [2, 3], crocIndices: [6, 7]}]
 
-// var cars = createMovingImageArray(
-//     [{ src: "resources/car1.png", width: 80, y: 450, speed: -1.5, xValues: [750, 1000, 1250] },d
-//     { src: "resources/car2.png", width: 82, y: 400, speed: 2.5, xValues: [-200, -650] },
-//     { src: "resources/car3.png", width: 81.5, y: 350, speed: 2, xValues: [-150, -400, -700] },
-//     { src: "resources/car4.png", width: 85, y: 300, speed: -3, xValues: [950, 1250] }]);
 var cars;
 
-// var steps = createMovingImageArray(
-//     [{ src: "resources/log1.png", width: 140, y: 200, speed: 1.5, xValues: [550, 150, -150] },
-//     { src: "resources/turtle.png", width: 180, y: 150, speed: -1.65, xValues: [400, 750] },
-//     { src: "resources/log1.png", width: 140, y: 100, speed: 1.55, xValues: [-150, -400, -700] },
-//     { src: "resources/log2.1.png", width: 160, y: 50, speed: -1.9, xValues: [200, 550] }]);
 var steps;
 
 var splash = createImage("resources/splashing.png", 0, 0, 180, 77.4);
-// steps[9].src = "resources/croc.png";
 
 var lilyPads = [];
 for (i = 0; i < 5; i++) {
     lilyPads.push(createImage("resources/lilypad.png", 137.5 * i + 100, 0, 50, 50));
-    // lilyPads[i].isOccupied = false;
 }
 
 var goingToIndex = Math.trunc(Math.random() * 3);
@@ -84,12 +83,7 @@ var shouldDrawFly = true;
 var ladyFrog = createRotatingImage("resources/ladyFrog.png", 400, 300, 40, 40, 0, 0, 0);
 ladyFrog.onALog = false;
 var logIndices;
-// var logIndices = [];
-// for (var i = 0; i < steps.length; i++) {
-//     if (steps[i].src.indexOf("/resources/log1.png") >= 0 || steps[i].src.indexOf("/resources/log2.1.png") >= 0) {
-//         logIndices.push(i);
-//     }
-// }
+
 
 function createMovingImageArray(values) {
     var array = [];
@@ -129,7 +123,7 @@ function turnRoundInfoIntoVariables(round){
 //starts the animation when the program is run
 function initialize() {
     seconds = (new Date() + '').substr(22, 2);
-    startRound(round);
+    // startRound(round);
     animate();
 }
 
@@ -143,8 +137,14 @@ var safe;
 function animate() {
     a = requestAnimationFrame(animate);
     // alert(roundBackground.shouldDraw);
-    if (roundBackground.shouldDraw) {
+    if (shouldDrawTitle) {
+        drawTitle();
+    }
+    else if (roundBackground.shouldDraw) {
         drawRound();
+    }
+    else if (shouldDrawGameOver) {
+        gameOver.drawImage();
     }
     else {
         drawBackground();
@@ -168,12 +168,12 @@ function animate() {
             drawFly();
         }
 
-        drawText('Score: ' + score, 15, 590);
+        drawText('Score: ' + score, 15, 590, 20);
         if (score > highScore) {
             highScore = score;
             document.cookie = "high score=" + highScore + "; expires=Thu, 18 Dec 2017 12:00:00 UTC";
         }
-        drawText('High Score: ' + highScore, 140, 590);
+        drawText('High Score: ' + highScore, 140, 590, 20);
 
         if (!safe) {
             death();
@@ -196,7 +196,21 @@ function death() {
     newTime();
 }
 
-function drawLadyFrog() {
+function drawTitle() {
+    drawRect('224ee0', 0, 0, 800, 600);
+    titleWords.drawImage();
+    skull.drawImage();
+    frog.drawImage();
+    snake.drawImage();
+    titleCroc.drawImage();
+    titleTurtle.drawImage();
+    play.drawImage();
+    for (var i = 0; i < titleBottom.length; i++) {
+        titleBottom[i].drawImage();
+    }
+}
+
++function drawLadyFrog() {
     ladyFrog.drawImage();
 
     if ((ladyFrog.left >= 1000 && ladyFrog.changeX > 0) || (ladyFrog.left + ladyFrog.width <= 0 && ladyFrog.changeX < 0)) {
@@ -354,15 +368,20 @@ function startFrog(){
 
 function drawRound () {
     roundBackground.drawImage();
-    drawText("Round "+(parseInt(actualRound)+1), 350, 300);
+    drawText("Round "+(parseInt(actualRound)+1), 300, 300, 50);
 }
 
 function startRound(){
+    document.getElementById('myCanvas').removeEventListener('click', startRound);
     round=actualRound;
     if (actualRound>4) {
         round = Math.trunc(Math.random()*3)+2
     }
+    if (round===0) {
+        score=0;
+    }
     roundBackground.shouldDraw = true;
+    shouldDrawTitle = false;
     setTimeout(function() {roundBackground.shouldDraw = false;}, 600);
     lilyPads.forEach(function(item) {
         item.isOccupied = false;
@@ -410,9 +429,9 @@ function checkGameWon() {
 
 function checkGameLost() {
     if (lives === 0) {
-        // drawRect('118a33', 75, 550, 20, 20);
-        stopAnimation();
-        drawText("Game Over", 200, 250)
+        drawRect('118a33', 75, 550, 20, 20);
+        shouldDrawGameOver=true;
+        actualRound = 0;
     }
 }
 
@@ -420,19 +439,19 @@ function drawBackground() {
     drawRect('118a33', 0, 250, 800, 600);
     drawRect('0088FF', 0, 0, 800, 250);
     drawRect('444444', 0, 300, 800, 200);
-    drawText('Lives: ', 15, 565);
+    drawText('Lives: ', 15, 565, 20);
     for (var i = 0; i < lives; i++) {
         frogLives.left = 75 + 25 * i;
         frogLives.drawImage();
     }
     updateTime();
 
-    drawText('Round: ' + (parseInt(actualRound)+1), 500, 590);
+    drawText('Round: ' + (parseInt(actualRound)+1), 500, 590, 20);
     if (actualRound > highRound) {
         highRound = actualRound;
         document.cookie = "high round=" + highRound + "; expires=Thu, 18 Dec 2017 12:00:00 UTC";
     }
-    drawText('Highest Round: ' + (parseInt(highRound)+1), 620, 590);
+    drawText('Highest Round: ' + (parseInt(highRound)+1), 620, 590, 20);
 }
 
 function updateTime() {
@@ -443,7 +462,7 @@ function updateTime() {
     else {
         timeLeft = -30 - parseInt(seconds2) + parseInt(seconds);
     }
-    drawText('Time: ' + timeLeft, 690, 565);
+    drawText('Time: ' + timeLeft, 690, 565, 20);
     if (timeLeft === 0) {
         death();
     }
@@ -479,23 +498,22 @@ function createImage(src, xcoord, ycoord, width, height) {
 
 $(document).keydown(function (event) {  //jQuery code to recognize a keydown event
     var keycode = (event.keyCode ? event.keyCode : event.which);
-
-    if (keycode == 87 && frog.top >= 50 && !disableFrog) {
+    if ((keycode === 87 || keycode === 38) && frog.top >= 50 && !disableFrog) {  //up (w, up arrow)
         frog.top -= 50;
         frog.currentDeg = 0;
     }
 
-    if (keycode == 65 && frog.left >= 50 && !disableFrog) {
+    if ((keycode === 65 || keycode === 37) && frog.left >= 50 && !disableFrog) { //left (a, left arrow)
         frog.left -= 50;
         frog.currentDeg = 270;
     }
 
-    if (keycode == 68 && frog.left + frog.width <= 750 && !disableFrog) {
+    if ((keycode === 68 || keycode === 39) && frog.left + frog.width <= 750 && !disableFrog) { //right (d, right arrow)
         frog.left += 50;
         frog.currentDeg = 90;
     }
 
-    if (keycode == 83 && frog.top + frog.height <= 500 && !disableFrog) {
+    if ((keycode === 83 || keycode === 40) && frog.top + frog.height <= 500 && !disableFrog) { //down (s, down arrow)
         frog.top += 50;
         frog.currentDeg = 180;
     }
@@ -547,10 +565,10 @@ function createRotatingImage(src, xcoord, ycoord, width, height, currDeg, change
 }
 
 //given text, and draws it on the top of the canvas
-function drawText(text, x, y) {
+function drawText(text, x, y, size, color='000000') {
     var ctx = document.getElementById('myCanvas').getContext("2d");
-    ctx.fillStyle = "#000000";
-    ctx.font = "20px Arial";
+    ctx.fillStyle = "#"+color;
+    ctx.font = size+"px Arial";
     ctx.fillText(text, x, y);
 }
 
@@ -568,4 +586,33 @@ function getCookie(cookieName) {
         }
     }
     return 0;
+}
+
+
+function createButton(pict, src2, func) {
+    return {
+        pict: pict,
+        src: pict.src,
+        src2: src2,
+        func: func,
+        checkHover: function () {
+            if (mousePos.x>this.pict.left && mousePos.x<this.pict.left+this.pict.width && mousePos.y>this.pict.top && mousePos.y<this.pict.top+this.pict.height) {
+                this.pict.src = this.src;
+                document.getElementById('myCanvas').addEventListener('click', this.func);
+            }
+            else {
+                this.pict.src = this.src2;
+                document.getElementById('myCanvas').removeEventListener('click', this.func)
+            }
+        },
+
+        drawImage: function () {
+            console.log(this.pict.src);
+            this.checkHover();
+            this.pict.drawImage();
+            console.log('time 2: '+this.pict.src);
+
+        }
+
+    }
 }
