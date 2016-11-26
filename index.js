@@ -210,7 +210,7 @@ function drawTitle() {
     }
 }
 
-+function drawLadyFrog() {
+function drawLadyFrog() {
     ladyFrog.drawImage();
 
     if ((ladyFrog.left >= 1000 && ladyFrog.changeX > 0) || (ladyFrog.left + ladyFrog.width <= 0 && ladyFrog.changeX < 0)) {
