@@ -5,11 +5,12 @@ var seconds;
 var score = 0;
 var highScore = getCookie('high score');
 var round = 0;
+var actualRound = 0;
 var highRound = getCookie('high round');
 var timeLeft = 30;
 var disableFrog = false;
 
-var roundBackground = createImage("resources/greenScreen.jpg", 00, 800, 600);
+var roundBackground = createImage("resources/greenScreen.jpg", 0, 0, 800, 600);
 roundBackground.shouldDraw = false;
 
 
@@ -29,16 +30,28 @@ snake.checkBoundaries = function () {
 };
 
 
-var roundInfo = [{carSpeeds: [-1.5, 2.5, 2, -3], carXValues: [[750, 1000, 1250], [-200, -650], [-150, -400, -700], [950, 1250]],   //round 1 Info
+var roundInfo = [{carSpeeds: [-1.6, 2, 1.8, -2.5], carXValues: [[750, 1250], [-200, -550], [-150, -700], [950, 1250]],  //round 2 Info
+                  stepSpeeds: [1.2, -1.3, 1.2, -1.5], stepXValues: [[550, 150, -150], [400, 750, 1000], [-150, -400, -700, -1000], [950, 1250]], 
+                  divingTurtlesIndices: [], crocIndices: []},
+    
+                  {carSpeeds: [-1.5, 2.5, 2, -3], carXValues: [[750, 1000, 1250], [-200, -650], [-150, -400, -700], [950, 1250]],   //round 1 Info
                   stepSpeeds: [1.5, -1.65, 1.55, -1.9], stepXValues: [[550, 150, -150], [400, 750], [-150, -400, -700], [950, 1250]], 
                   divingTurtlesIndices: [3], crocIndices: [9]}, 
                   
-                  {carSpeeds: [-1.5, 5, 2, -3], carXValues: [[750, 1000, 1250], [-200], [-150, -400, -700], [950, 1250]],  //round 2 Info
-                  stepSpeeds: [1.5, -1.65, 1.55, -1.9], stepXValues: [[550, 150, -150], [400, 750], [-150, -400, -700], [950, 1250]], 
-                  divingTurtlesIndices: [3], crocIndices: [8, 9]}]
+                  {carSpeeds: [-2, 5, 2.5, -3.5], carXValues: [[750, 1000, 1250], [-200, -600], [-150, -400, -700], [950, 1250, 1500]],  //round 2 Info
+                  stepSpeeds: [2, -1.65, 1.55, -1.9], stepXValues: [[750, 150], [400, 750], [-150, -400, -700], [950, 1250]], 
+                  divingTurtlesIndices: [3], crocIndices: [7, 8]},
+                  
+                {carSpeeds: [-2.5, 5, 2.5, -3.7], carXValues: [[750, 1000, 1250], [-200, -500, -500], [-150, -400, -700], [950, 1250, 1500]],  //round 2 Info
+                  stepSpeeds: [2.3, -2, 1.55, -2.5], stepXValues: [[750, 150], [400, 750], [-150, -400, -700], [950, 1250]], 
+                  divingTurtlesIndices: [2, 3], crocIndices: [7, 8]},
+
+                  {carSpeeds: [-3, 5.5, 2.8, -3.5], carXValues: [[750, 1000, 1250, 1500], [-200, -500, -800], [-150, -400, -700, -1050], [950, 1250, 1500]],  //round 2 Info
+                  stepSpeeds: [2.3, -3, 1.3, -2.5], stepXValues: [[750, 150], [400, 750], [-150, -400], [950, 1250]], 
+                  divingTurtlesIndices: [2, 3], crocIndices: [6, 7]}]
 
 // var cars = createMovingImageArray(
-//     [{ src: "resources/car1.png", width: 80, y: 450, speed: -1.5, xValues: [750, 1000, 1250] },
+//     [{ src: "resources/car1.png", width: 80, y: 450, speed: -1.5, xValues: [750, 1000, 1250] },d
 //     { src: "resources/car2.png", width: 82, y: 400, speed: 2.5, xValues: [-200, -650] },
 //     { src: "resources/car3.png", width: 81.5, y: 350, speed: 2, xValues: [-150, -400, -700] },
 //     { src: "resources/car4.png", width: 85, y: 300, speed: -3, xValues: [950, 1250] }]);
@@ -57,7 +70,7 @@ var splash = createImage("resources/splashing.png", 0, 0, 180, 77.4);
 var lilyPads = [];
 for (i = 0; i < 5; i++) {
     lilyPads.push(createImage("resources/lilypad.png", 137.5 * i + 100, 0, 50, 50));
-    lilyPads[i].isOccupied = false;
+    // lilyPads[i].isOccupied = false;
 }
 
 var goingToIndex = Math.trunc(Math.random() * 3);
@@ -129,7 +142,8 @@ var safe;
 //repeatedly draws the appropriate
 function animate() {
     a = requestAnimationFrame(animate);
-    if (drawBackground.shouldDraw) {
+    // alert(roundBackground.shouldDraw);
+    if (roundBackground.shouldDraw) {
         drawRound();
     }
     else {
@@ -236,7 +250,7 @@ function drawFly() {
     }
 
     if (frog.checkCollision(fly)) {
-        score += 7;
+        score += 50;
         shouldDrawFly = false;
     }
 
@@ -287,14 +301,17 @@ function drawSteps() {
 }
 
 function drawLilyPads() {
-    frog.width = 30;      //adjusts the width of the frog so that its not as easy to land on the lily pad
-    frog.left += 10;
     for (i = 0; i < lilyPads.length; i++) {
         lilyPads[i].drawImage();
         if (frog.checkCollision(lilyPads[i])) {
             lilyPads[i].isOccupied = true;
             if (frog.src.indexOf("resources/doubleFrog.png") >= 0) {
+                if (lives < 5) {
                 lives += 1;
+                }
+                else {
+                    score+=20;
+                }
             }
             safe = true;
             if (timeLeft > 23) {
@@ -316,8 +333,6 @@ function drawLilyPads() {
             frogOnLilyPads.drawImage();
         }
     }
-    frog.width = 50;
-    frog.left -= 10;
 }
 
 function drawCars() {
@@ -339,12 +354,19 @@ function startFrog(){
 
 function drawRound () {
     roundBackground.drawImage();
-    drawText("Round "+(parseInt(round)+1), 350, 300);
+    drawText("Round "+(parseInt(actualRound)+1), 350, 300);
 }
 
 function startRound(){
+    round=actualRound;
+    if (actualRound>4) {
+        round = Math.trunc(Math.random()*3)+2
+    }
     roundBackground.shouldDraw = true;
-    setTimeout(function() {roundBackground.shouldDraw = true;}, 1000);
+    setTimeout(function() {roundBackground.shouldDraw = false;}, 600);
+    lilyPads.forEach(function(item) {
+        item.isOccupied = false;
+    });
     turnRoundInfoIntoVariables(round);
     newTime();
 }
@@ -381,9 +403,8 @@ function checkGameWon() {
         }
     }
     if (allLilies) {
-        // drawRect('118a33', 0, 500, 650, 50);
-        stopAnimation();
-        drawText("You Win", 200, 250)
+        actualRound+=1;
+        startRound();
     }
 }
 
@@ -406,9 +427,9 @@ function drawBackground() {
     }
     updateTime();
 
-    drawText('Round: ' + (parseInt(round)+1), 500, 590);
-    if (round > highRound) {
-        highRound = round;
+    drawText('Round: ' + (parseInt(actualRound)+1), 500, 590);
+    if (actualRound > highRound) {
+        highRound = actualRound;
         document.cookie = "high round=" + highRound + "; expires=Thu, 18 Dec 2017 12:00:00 UTC";
     }
     drawText('Highest Round: ' + (parseInt(highRound)+1), 620, 590);
