@@ -6,7 +6,7 @@ var score = 0;
 var highScore = getCookie('high score');
 var round = 0;
 var actualRound = 0;
-var highRound = getCookie('high round');
+var highRound = getCookie('high round'); 
 var timeLeft = 30;
 var disableFrog = false;
 
